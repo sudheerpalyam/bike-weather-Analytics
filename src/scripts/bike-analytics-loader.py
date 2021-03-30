@@ -8,6 +8,8 @@ import snowflake.connector.connection
 import snowflake.connector.errors
 from codecs import open
 
+import configparser
+
 
 dbname = "CITIBIKE"
 stagename = "CITIBIKE.PUBLIC.CITIBIKE_TRIPS2"
@@ -22,7 +24,7 @@ if len(sys.argv) != 4:
     sys.exit(1)
 
 
-def runtest():
+def run(conf):
     """Create database, Creates target tables, Unload data, upload data,
        capture runtime
     """
@@ -41,24 +43,24 @@ def runtest():
             region=region
         )
 
-        runinit(ctx)
-        runload(ctx)
+        runinit(ctx, conf)
+        runload(ctx, conf)
 
     finally:
         if 'ctx' in locals():
             ctx.close()
 
 
-def runinit(ctx):
+def runinit(ctx, conf):
     cs = ctx.cursor()
-    print("==> USE DATABASE {}".format(dbname))
-    cs.execute("USE DATABASE {}".format(dbname))
+    print("==> USE DATABASE {}".format(conf['bikedbname']))
+    cs.execute("USE DATABASE {}".format(conf['bikedbname']))
 
-    load_weather_data(ctx, dbname)
+    load_weather_data(ctx, conf['weatherdbname'])
 
-    load_weather_data(ctx, dbname)
+    load_biketrips_data(ctx, conf['bikedbname'])
 
-    create_db_schema(ctx, dbname)
+    create_db_schema(ctx, conf['bikedbname'])
     create_unload_format(ctx)
     create_internal_stage(ctx, stagename)
     # change the size of the warehouse if test data size is larger than 5 GB and you want faster export
@@ -68,7 +70,7 @@ def runinit(ctx):
                 sys.argv[1], sys.argv[3])
 
 
-def runload(ctx):
+def runload(ctx, conf):
     for ws_size in wsnames.keys():
         loadtable(ctx, ws_size)
 
@@ -185,6 +187,7 @@ def load_weather_data(ctx, db_name):
             for ret in cur:
                 print(ret)
 
+
 def load_biketrips_data(ctx, db_name):
     sqlfile = 'src/sql/bike-trips.sql'
     with open(sqlfile, 'r', encoding='utf-8') as f:
@@ -192,5 +195,12 @@ def load_biketrips_data(ctx, db_name):
             for ret in cur:
                 print(ret)
 
+
 if __name__ == '__main__':
-    runtest()
+    config = configparser.RawConfigParser()
+    config.read('src/cfg/config.properties')
+    conf = dict(config.items('snowflake'))
+    print (conf)
+    print (conf['snow_region'])
+
+    run(conf)
