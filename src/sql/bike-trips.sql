@@ -1,0 +1,76 @@
+//=====================================
+// Preparing to Load Data
+//=====================================
+USE ROLE        SYSADMIN;
+CREATE OR REPLACE DATABASE CITIBIKE;
+
+USE DATABASE  CITIBIKE;
+USE SCHEMA    CITIBIKE.PUBLIC;
+
+CREATE OR REPLACE TABLE 
+  CITIBIKE.PUBLIC.TRIPS (
+    TRIPDURATION            INTEGER,
+    STARTTIME               TIMESTAMP comment 'trip start',
+    STOPTIME                TIMESTAMP comment 'trip end',
+    START_STATION_ID        INTEGER,
+    START_STATION_NAME      STRING,
+    START_STATION_LATITUDE  FLOAT,
+    START_STATION_LONGITUDE FLOAT,
+    END_STATION_ID          INTEGER,
+    END_STATION_NAME        STRING,
+    END_STATION_LATITUDE    FLOAT,
+    END_STATION_LONGITUDE   FLOAT,
+    BIKEID                  INTEGER comment 'Unique identifier for bike',
+    MEMBERSHIP_TYPE         STRING,
+    USERTYPE                STRING,
+    BIRTH_YEAR              INTEGER,
+    GENDER                  INTEGER
+) COMMENT="Citi bike trips data loaded into table";
+
+CREATE OR REPLACE STAGE
+  CITIBIKE.PUBLIC.CITIBIKE_TRIPS
+  URL='s3://snowflake-workshop-lab/citibike-trips/trips_2018_6'
+  COMMENT = 'Only a month data';
+
+LIST @CITIBIKE_TRIPS;
+
+CREATE OR REPLACE FILE FORMAT
+  CITIBIKE.PUBLIC.CSV
+  TYPE = 'CSV'
+  FIELD_OPTIONALLY_ENCLOSED_BY = '\042'
+  NULL_IF = ('NULL','null','')
+  ERROR_ON_COLUMN_COUNT_MISMATCH = FALSE;
+//=====================================
+
+
+//=====================================
+// Loading Data
+//=====================================
+CREATE OR REPLACE WAREHOUSE
+  COMPUTE_WH
+  WAREHOUSE_SIZE=SMALL
+  AUTO_SUSPEND=60;
+
+USE ROLE      SYSADMIN;
+USE WAREHOUSE COMPUTE_WH;
+USE DATABASE  CITIBIKE;
+USE SCHEMA    CITIBIKE.PUBLIC;
+
+COPY INTO 
+  CITIBIKE.PUBLIC.TRIPS 
+FROM 
+  @CITIBIKE.PUBLIC.CITIBIKE_TRIPS
+  FILE_FORMAT=CITIBIKE.PUBLIC.CSV
+  ON_ERROR=CONTINUE;
+
+CREATE WAREHOUSE IF NOT EXISTS
+  ANALYTICS_WH
+  WAREHOUSE_SIZE=LARGE
+  AUTO_SUSPEND=60;
+//=====================================
+
+
+CREATE TABLE 
+  CITIBIKE.PUBLIC.TRIPS_DEV 
+CLONE 
+  CITIBIKE.PUBLIC.TRIPS;
