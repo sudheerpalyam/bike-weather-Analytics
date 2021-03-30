@@ -17,9 +17,17 @@ A fictionary analytics application created based of New York City Bike and Weath
 ### Step2 : Invoke launcher script
 python3 src/scripts/bike-analytics-launcher.py
 
+## Result
+Expect to see the following Tables and Views after successful run of this application.
+
+![Alt text](static/bike_analytics_catalog.png?raw=true "Analytics Catalog")
+
+
 ## Credits: 
 https://docs.snowflake.net/manuals/user-guide-getting-started.html
 https://bit.ly/2JJZl3J
 
 ## Reference : 
 https://s3.amazonaws.com/snowflake-workshop-lab/InpersonZTS_LabGuide.pdf
+
+## Author: https://github.com/sudheerpalyam
