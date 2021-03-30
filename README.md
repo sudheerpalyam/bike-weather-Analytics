@@ -23,11 +23,11 @@ Expect to see the following Tables and Views after successful run of this applic
 ![Alt text](static/bike_analytics_catalog.png?raw=true "Analytics Catalog")
 
 
-## Credits: 
+### Credits: 
 https://docs.snowflake.net/manuals/user-guide-getting-started.html
 https://bit.ly/2JJZl3J
 
-## Reference : 
+### Reference : 
 https://s3.amazonaws.com/snowflake-workshop-lab/InpersonZTS_LabGuide.pdf
 
-## Author: https://github.com/sudheerpalyam
+#### Author: https://github.com/sudheerpalyam
