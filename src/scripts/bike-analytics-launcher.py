@@ -18,7 +18,7 @@ wsnames = {
     'XSMALL': 'ZEXP_100_XS_TEST'
 }
 
-if len(sys.argv) != 4:
+if len(sys.argv) != 1:
     print("Usage snow_zexp_100_runner.py sourceTable targetTable numOfRows; given  {}".format(
         len(sys.argv)))
     sys.exit(1)
@@ -56,9 +56,8 @@ def runinit(ctx, conf):
     print("==> USE DATABASE {}".format(conf['bikedbname']))
     cs.execute("USE DATABASE {}".format(conf['bikedbname']))
 
-    load_weather_data(ctx, conf['weatherdbname'])
-
     load_biketrips_data(ctx, conf['bikedbname'])
+    load_weather_data(ctx, conf['weatherdbname'])
 
     create_db_schema(ctx, conf['bikedbname'])
     create_unload_format(ctx)
@@ -67,7 +66,7 @@ def runinit(ctx, conf):
     print("==> using warehouse {}".format(wsnames['XSMALL']))
     create_warehouse(ctx, 'XSMALL')
     export_data(ctx, stagename,
-                sys.argv[1], sys.argv[3])
+                conf['tripstablename'], conf['numrows'])
 
 
 def runload(ctx, conf):
@@ -78,7 +77,7 @@ def runload(ctx, conf):
 def loadtable(ctx, ws_size):
     create_warehouse(ctx, ws_size)
     load_data(ctx, stagename,
-              sys.argv[1], sys.argv[2])
+              conf['tripstablename'], conf['tripsprocessedtablename'])
     get_load_time(ctx, ws_size)
 
 

@@ -16,7 +16,7 @@ copy into json_weather_data
 from @nyc_weather 
 file_format = (type=json);
 
-select * from json_weather_data limit 10;
+-- select * from json_weather_data limit 10;
 
 create or replace view json_weather_data_view as
 select
